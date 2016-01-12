@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MigraDoc.DocumentObjectModel;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,12 +14,12 @@ namespace SharpPDFLabel
         /// </summary>
         public enum PageSize
         {
-            A4
+            A4,
+            LETTER
         }
 
         /// <summary>
         /// The possible styles for a font
-        /// Taken straight from iTextSharp
         /// </summary>
         [Flags]
         public enum FontStyle
@@ -35,9 +36,9 @@ namespace SharpPDFLabel
 
         public enum Alignment
         {
-            LEFT = Element.ALIGN_LEFT,
-            CENTER = Element.ALIGN_CENTER,
-            RIGHT = Element.ALIGN_RIGHT
+            LEFT = ParagraphAlignment.Left,
+            CENTER = ParagraphAlignment.Center,
+            RIGHT = ParagraphAlignment.Right
         }
 
     }

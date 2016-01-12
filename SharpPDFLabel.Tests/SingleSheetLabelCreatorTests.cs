@@ -13,10 +13,11 @@ namespace SharpPDFLabel.Tests
         {
 
             var labelDefinition = new L7654();
+            //labelDefinition.PageSize = Enums.PageSize.LETTER;
             var labelCreator = new SingleSheetLabelCreator(labelDefinition);
-            labelCreator.IncludeLabelBorders = true;
-            labelCreator.AddText("WEBBERFUL!", "Verdana", 12, embedFont: true);
-            labelCreator.AddText("Wonderful Web Works", "Verdana", 12, embedFont: true);
+            labelCreator.IncludeLabelBorders = false;
+            labelCreator.AddText("WEBBERFUL!", "Ssans Pro Regular", 12, embedFont: true);
+            labelCreator.AddText("Wonderful Web Works", "Ssans Pro Regular", 12, embedFont: true);
 
 
             var pdfStream = labelCreator.CreatePDF();

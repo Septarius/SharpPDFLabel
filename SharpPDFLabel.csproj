@@ -34,12 +34,24 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="MigraDoc.DocumentObjectModel, Version=1.50.4000.0, Culture=neutral, PublicKeyToken=f94615aa0424f9eb, processorArchitecture=MSIL">
+      <HintPath>packages\PDFsharp-MigraDoc.1.50.4000-beta3b\lib\net20\MigraDoc.DocumentObjectModel.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="MigraDoc.Rendering, Version=1.50.4000.0, Culture=neutral, PublicKeyToken=f94615aa0424f9eb, processorArchitecture=MSIL">
+      <HintPath>packages\PDFsharp-MigraDoc.1.50.4000-beta3b\lib\net20\MigraDoc.Rendering.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="MigraDoc.RtfRendering, Version=1.50.4000.0, Culture=neutral, PublicKeyToken=f94615aa0424f9eb, processorArchitecture=MSIL">
+      <HintPath>packages\PDFsharp-MigraDoc.1.50.4000-beta3b\lib\net20\MigraDoc.RtfRendering.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="PdfSharp, Version=1.50.4000.0, Culture=neutral, PublicKeyToken=f94615aa0424f9eb, processorArchitecture=MSIL">
-      <HintPath>packages\PDFsharp.1.50.4000-beta3b\lib\net20\PdfSharp.dll</HintPath>
+      <HintPath>packages\PDFsharp-MigraDoc.1.50.4000-beta3b\lib\net20\PdfSharp.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="PdfSharp.Charting, Version=1.50.4000.0, Culture=neutral, PublicKeyToken=f94615aa0424f9eb, processorArchitecture=MSIL">
-      <HintPath>packages\PDFsharp.1.50.4000-beta3b\lib\net20\PdfSharp.Charting.dll</HintPath>
+      <HintPath>packages\PDFsharp-MigraDoc.1.50.4000-beta3b\lib\net20\PdfSharp.Charting.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -52,6 +64,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FontDataHelper.cs" />
+    <Compile Include="FontResolver.cs" />
     <Compile Include="Label.cs" />
     <Compile Include="CustomLabelCreator.cs" />
     <Compile Include="Enums.cs" />
@@ -65,7 +79,23 @@
     <Compile Include="TextChunk.cs" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Fonts\SourceSansPro\SourceSansPro-Black.ttf" />
+    <EmbeddedResource Include="Fonts\SourceSansPro\SourceSansPro-BlackItalic.ttf" />
+    <EmbeddedResource Include="Fonts\SourceSansPro\SourceSansPro-Bold.ttf" />
+    <EmbeddedResource Include="Fonts\SourceSansPro\SourceSansPro-BoldItalic.ttf" />
+    <EmbeddedResource Include="Fonts\SourceSansPro\SourceSansPro-ExtraLight.ttf" />
+    <EmbeddedResource Include="Fonts\SourceSansPro\SourceSansPro-ExtraLightItalic.ttf" />
+    <EmbeddedResource Include="Fonts\SourceSansPro\SourceSansPro-Italic.ttf" />
+    <EmbeddedResource Include="Fonts\SourceSansPro\SourceSansPro-Light.ttf" />
+    <EmbeddedResource Include="Fonts\SourceSansPro\SourceSansPro-LightItalic.ttf" />
+    <EmbeddedResource Include="Fonts\SourceSansPro\SourceSansPro-Regular.ttf" />
+    <EmbeddedResource Include="Fonts\SourceSansPro\SourceSansPro-Semibold.ttf" />
+    <EmbeddedResource Include="Fonts\SourceSansPro\SourceSansPro-SemiboldItalic.ttf" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Fonts\SourceSansPro\OFL.txt" />
+    <Content Include="Fonts\SourceSansPro\README.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

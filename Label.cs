@@ -1,4 +1,6 @@
-﻿using System;
+﻿using MigraDoc.DocumentObjectModel;
+using MigraDoc.DocumentObjectModel.Tables;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -27,29 +29,27 @@ namespace SharpPDFLabel
         }
 
 
-        public PdfPCell GetLabelCell()
+        public void GetLabelCell(Cell cell)
         {
-            // Create a new Phrase and add the image to it
-            var cellContent = new Phrase();
+            var cellContent =  cell.AddParagraph();
 
             foreach (var img in _images)
             {
-                var pdfImg = iTextSharp.text.Image.GetInstance(img);
-                cellContent.Add(new Chunk(pdfImg, 0, 0));
+                //TODO: Images
             }
 
             foreach (var txt in _textChunks)
             {
-                var font = FontFactory.GetFont(txt.FontName, BaseFont.CP1250, txt.EmbedFont, txt.FontSize, txt.FontStyle);
-                cellContent.Add(new Chunk("\n" + txt.Text, font));
+                cellContent.AddText(txt.Text);
+                cellContent.Format.Font.Size = Unit.FromPoint(txt.FontSize);
+                cellContent.Format.Font.Name = txt.FontName;
+                //TODO: Styles
+                
             }
 
-            //Create a new cell specifying the content
-            var cell = new PdfPCell(cellContent);
-            cell.HorizontalAlignment = (int)_hAlign;
-            cell.VerticalAlignment = Element.ALIGN_TOP;
-
-            return cell;
+            
+            cellContent.Format.Alignment = (ParagraphAlignment)_hAlign;
+            cell.VerticalAlignment = VerticalAlignment.Top;
         }
 
 

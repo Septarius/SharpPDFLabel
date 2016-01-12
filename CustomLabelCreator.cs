@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
+using MigraDoc.Rendering;
+using MigraDoc.DocumentObjectModel;
+using MigraDoc.DocumentObjectModel.Tables;
 
 namespace SharpPDFLabel
 {
@@ -21,8 +24,6 @@ namespace SharpPDFLabel
 
         public CustomLabelCreator(LabelDefinition labelDefinition)
         {
-			FontFactory.RegisterDirectories(); //Register all local fonts
-
             _labelDefinition = labelDefinition;
             _labels = new List<Label>();
             IncludeLabelBorders = false;
@@ -47,37 +48,55 @@ namespace SharpPDFLabel
         public Stream CreatePDF()
         {
 
-            //Get the itext page size
-            Rectangle pageSize;
+            //Get the page size
+            MigraDoc.DocumentObjectModel.PageFormat pageSize;
             switch (_labelDefinition.PageSize)
             {
+                case Enums.PageSize.LETTER:
+                    pageSize = MigraDoc.DocumentObjectModel.PageFormat.Letter;
+                    break;
                 case Enums.PageSize.A4:
-                    pageSize = iTextSharp.text.PageSize.A4;
+                    pageSize = MigraDoc.DocumentObjectModel.PageFormat.A4;
                     break;
                 default:
-                    pageSize = iTextSharp.text.PageSize.A4;
+                    pageSize = MigraDoc.DocumentObjectModel.PageFormat.A4;
                     break;
             }
 
-            //Create a new iText document object, define the paper size and the margins required
-            var doc = new Document(pageSize, 
-                                   _labelDefinition.PageMarginLeft, 
-                                   _labelDefinition.PageMarginRight, 
-                                   _labelDefinition.PageMarginTop, 
-                                   _labelDefinition.PageMarginBottom);
+            
 
             //Create a stream to write the PDF to
             var output = new MemoryStream();
 
-            //Creates the document tells the PdfWriter to use the output stream when Document.Close() is called
-            var writer = PdfWriter.GetInstance(doc, output);
+            //Create a new document object
+            var document = new Document();
 
-            //Ensure stream isn't closed when done - we need to return it
-            writer.CloseStream = false;
+            // Get the predefined style Normal.
+            var style = document.Styles["Normal"];
+            // Because all styles are derived from Normal, the next line changes the 
+            // font of the whole document. Or, more exactly, it changes the font of
+            // all styles and paragraphs that do not redefine the font.
+            style.Font.Name = "SSans Pro Regular";
 
-            //Open the document to begin adding elements
-            doc.Open();
+            // Create a new style called Label based on style Normal.
+            style = document.Styles.AddStyle("Label", "Normal");
+            style.ParagraphFormat.Alignment = ParagraphAlignment.Left;
+            style.ParagraphFormat.Shading.Color = Colors.Black;
 
+            Unit width, height;
+            PageSetup.GetPageSize(pageSize, out width, out height);
+
+            document.DefaultPageSetup.PageFormat = pageSize;
+
+            document.DefaultPageSetup.PageWidth = width;
+            document.DefaultPageSetup.PageHeight = height;
+            document.DefaultPageSetup.Orientation = Orientation.Portrait;
+            document.DefaultPageSetup.LeftMargin = Unit.FromPoint(_labelDefinition.PageMarginLeft);
+            document.DefaultPageSetup.RightMargin = Unit.FromPoint(_labelDefinition.PageMarginRight);
+            document.DefaultPageSetup.TopMargin = Unit.FromPoint(_labelDefinition.PageMarginTop);
+            document.DefaultPageSetup.BottomMargin = Unit.FromPoint(_labelDefinition.PageMarginBottom);
+
+            
             //Create a new table with label and gap columns
             var numOfCols = _labelDefinition.LabelsPerRow + (_labelDefinition.LabelsPerRow - 1);
            // var tbl = new PdfPTable(numOfCols);
@@ -97,57 +116,62 @@ namespace SharpPDFLabel
                 }
             }
 
-            /* The next 3 lines are the key to making SetWidthPercentage work */
-            /* "size" specifies the size of the page that equates to 100% - even though the values passed are absolute not relative?! */
-            /* (I will never get those 3 hours back) */
-            var w = iTextSharp.text.PageSize.A4.Width - (doc.LeftMargin + doc.RightMargin);
-            var h = iTextSharp.text.PageSize.A4.Height - (doc.TopMargin + doc.BottomMargin);
-            var size = new iTextSharp.text.Rectangle(w, h);
-
 
             // loop over the labels
 
-            var rowNumber = 0;
+            var rowNumber = -1;
             var colNumber = 0;
 
 
-            PdfPTable tbl = null;
+            Table tbl = null;
+            Row row = null;
+            Cell cell = null;
             foreach (var label in _labels)
             {
-                if (rowNumber == 0)
+                
+                if (rowNumber == -1)
                 {
-                    tbl = new PdfPTable(numOfCols);
-                    tbl.SetWidthPercentage(colWidths.ToArray(), size);
-                    rowNumber = 1; // so we start with row 1
-                    doc.NewPage();
+                    var section = document.AddSection(); //Create page
+                    tbl = section.AddTable();
+                    for(int i = 0; i < numOfCols; i++)
+                    {
+                        tbl.AddColumn(Unit.FromPoint(colWidths[i]));
+                    }
+                    row = tbl.AddRow();
+                    rowNumber = 0;
+                    row.Height = _labelDefinition.Height;
                 }
-                colNumber++; // so we start with col 1
+                cell = row.Cells[colNumber];
+                colNumber++;
 
                 // add the label cell.
-                var cell = FormatCell(label.GetLabelCell());
+                label.GetLabelCell(cell);
 
                 //Add to the row
-                tbl.AddCell(cell);
+                FormatCell(cell);
 
                 //Create a empty cell to use as a gap
                 if (colNumber < numOfCols)
                 {
-                    tbl.AddCell(CreateGapCell());
                     colNumber++; // increment for the gap row
                 }
 
                 //On all but the last row, after the last column, add a gap row if needed
                 if (colNumber == numOfCols && ((rowNumber) < _labelDefinition.LabelRowsPerPage && _labelDefinition.VerticalGapHeight > 0))
                 {
-                    tbl.Rows.Add(CreateGapRow(numOfCols));
+                    row = tbl.AddRow();
+                    row.Height = _labelDefinition.VerticalGapHeight;
                 }
 
+                if(colNumber == numOfCols && (rowNumber < _labelDefinition.LabelRowsPerPage))
+                {
+                    // add the row to the table and re-initialize
+                    row = tbl.AddRow();
+                    row.Height = _labelDefinition.Height;
+                }
 
                 if (colNumber == numOfCols)
                 {
-                    // add the row to the table and re-initialize
-                    tbl.CompleteRow();
-
                     rowNumber++;
                     colNumber = 0;
                 }
@@ -155,12 +179,11 @@ namespace SharpPDFLabel
                 
                 if (rowNumber > _labelDefinition.LabelRowsPerPage)
                 {
-                    //Add the table to the document
-                    doc.Add(tbl);
-                    rowNumber = 0;
+                    
+                    rowNumber = -1;
                     colNumber = 0;
                 }
-
+                
             }
 
             if (colNumber < numOfCols)
@@ -168,30 +191,24 @@ namespace SharpPDFLabel
                 // finish the row that was being built
                 while (colNumber < numOfCols)
                 {
-                    if (colNumber % 2 == 1)
-                    {
-                        tbl.AddCell(CreateEmptyLabelCell());
-                    }
-                    else
-                    {
-                        tbl.AddCell(CreateGapCell());
-                    }
                     colNumber++;
                 }
-
-
-                tbl.CompleteRow();
             }
 
             // make sure the last table gets added to the document
-            if (rowNumber > 0)
+            if (rowNumber > -1)
             {
-                //Add the table to the document
-                doc.Add(tbl);
             }
 
-            //Close the document, writing to the stream we specified earlier
-            doc.Close();
+            var pdfRenderer = new PdfDocumentRenderer(true);
+
+            // Set the MigraDoc document.
+            pdfRenderer.Document = document;
+
+            // Create the PDF document.
+            pdfRenderer.RenderDocument();
+
+            pdfRenderer.Save(output, false);
 
             //Set the stream back to position 0 so we can use it when it's returned
             output.Position = 0;
@@ -200,37 +217,23 @@ namespace SharpPDFLabel
 
         }
 
-        private PdfPCell CreateEmptyLabelCell()
-        {
-            PdfPCell cell = new PdfPCell();
-            return FormatCell(cell);
-        }
-
-        private PdfPCell FormatCell(PdfPCell cell)
+        private Cell FormatCell(Cell cell)
         {
             //Ensure our label height is adhered to
-            cell.FixedHeight = _labelDefinition.Height;
-            cell.Border = IncludeLabelBorders ? Rectangle.BOX : Rectangle.NO_BORDER;
+            cell.Row.Height = _labelDefinition.Height;
+            cell.Row.Borders.Visible = IncludeLabelBorders;
+            if(IncludeLabelBorders)
+            { 
+            cell.Row.Borders.Top.Style = BorderStyle.Single;
+            cell.Row.Borders.Top.Color = Color.Parse("Black");
+            cell.Row.Borders.Bottom.Style = BorderStyle.Single;
+            cell.Row.Borders.Bottom.Color = Color.Parse("Black");
+            cell.Row.Borders.Left.Style = BorderStyle.Single;
+            cell.Row.Borders.Left.Color = Color.Parse("Black");
+            cell.Row.Borders.Right.Style = BorderStyle.Single;
+            cell.Row.Borders.Right.Color = Color.Parse("Black");
+            }
             return cell;
-        }
-
-        private PdfPCell CreateGapCell()
-        {
-            var cell = new PdfPCell();
-            cell.FixedHeight = _labelDefinition.VerticalGapHeight;
-            cell.Border = Rectangle.NO_BORDER;
-            return cell;
-        }
-
-        private PdfPRow CreateGapRow(int numOfCols)
-        {
-            var cells = new List<PdfPCell>();
-
-            for (int i = 0; i < numOfCols; i++)
-			{
-                cells.Add(CreateGapCell());
-			}
-            return new PdfPRow(cells.ToArray());
         }
 
     }

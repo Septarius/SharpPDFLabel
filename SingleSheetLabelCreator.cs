@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
+using PdfSharp.Fonts;
 
 namespace SharpPDFLabel
 {
@@ -22,7 +23,8 @@ namespace SharpPDFLabel
 
         public SingleSheetLabelCreator(LabelDefinition labelDefinition, Enums.Alignment hAlign)
         {
-			FontFactory.RegisterDirectories(); //Register all local fonts
+            GlobalFontSettings.FontResolver = FontResolver.Get;
+
             _labelDefinition = labelDefinition;
             _creator = new CustomLabelCreator(labelDefinition);
             _label = new Label(hAlign);
