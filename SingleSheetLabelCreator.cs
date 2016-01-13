@@ -23,8 +23,6 @@ namespace SharpPDFLabel
 
         public SingleSheetLabelCreator(LabelDefinition labelDefinition, Enums.Alignment hAlign)
         {
-            GlobalFontSettings.FontResolver = FontResolver.Get;
-
             _labelDefinition = labelDefinition;
             _creator = new CustomLabelCreator(labelDefinition);
             _label = new Label(hAlign);

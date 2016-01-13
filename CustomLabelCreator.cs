@@ -6,6 +6,7 @@ using System.IO;
 using MigraDoc.Rendering;
 using MigraDoc.DocumentObjectModel;
 using MigraDoc.DocumentObjectModel.Tables;
+using PdfSharp.Fonts;
 
 namespace SharpPDFLabel
 {
@@ -24,6 +25,8 @@ namespace SharpPDFLabel
 
         public CustomLabelCreator(LabelDefinition labelDefinition)
         {
+            GlobalFontSettings.FontResolver = FontResolver.Get;
+
             _labelDefinition = labelDefinition;
             _labels = new List<Label>();
             IncludeLabelBorders = false;
@@ -91,18 +94,17 @@ namespace SharpPDFLabel
             document.DefaultPageSetup.PageWidth = width;
             document.DefaultPageSetup.PageHeight = height;
             document.DefaultPageSetup.Orientation = Orientation.Portrait;
-            document.DefaultPageSetup.LeftMargin = Unit.FromPoint(_labelDefinition.PageMarginLeft);
-            document.DefaultPageSetup.RightMargin = Unit.FromPoint(_labelDefinition.PageMarginRight);
-            document.DefaultPageSetup.TopMargin = Unit.FromPoint(_labelDefinition.PageMarginTop);
-            document.DefaultPageSetup.BottomMargin = Unit.FromPoint(_labelDefinition.PageMarginBottom);
+            document.DefaultPageSetup.LeftMargin = Unit.FromMillimeter(_labelDefinition.PageMarginLeft);
+            document.DefaultPageSetup.RightMargin = Unit.FromMillimeter(_labelDefinition.PageMarginRight);
+            document.DefaultPageSetup.TopMargin = Unit.FromMillimeter(_labelDefinition.PageMarginTop);
+            document.DefaultPageSetup.BottomMargin = Unit.FromMillimeter(_labelDefinition.PageMarginBottom);
 
             
             //Create a new table with label and gap columns
             var numOfCols = _labelDefinition.LabelsPerRow + (_labelDefinition.LabelsPerRow - 1);
-           // var tbl = new PdfPTable(numOfCols);
 
             //Build the column width array, even numbered index columns will be gap columns
-            var colWidths = new List<float>();
+            var colWidths = new List<double>();
             for (int i = 1; i <= numOfCols; i++)
             {
                 if (i % 2 > 0)
@@ -119,7 +121,7 @@ namespace SharpPDFLabel
 
             // loop over the labels
 
-            var rowNumber = -1;
+            var rowNumber = 0;
             var colNumber = 0;
 
 
@@ -129,17 +131,17 @@ namespace SharpPDFLabel
             foreach (var label in _labels)
             {
                 
-                if (rowNumber == -1)
+                if (rowNumber == 0)
                 {
                     var section = document.AddSection(); //Create page
                     tbl = section.AddTable();
                     for(int i = 0; i < numOfCols; i++)
                     {
-                        tbl.AddColumn(Unit.FromPoint(colWidths[i]));
+                        tbl.AddColumn(Unit.FromMillimeter(colWidths[i]));
                     }
                     row = tbl.AddRow();
-                    rowNumber = 0;
-                    row.Height = _labelDefinition.Height;
+                    rowNumber = 1;
+                    row.Height = Unit.FromMillimeter(_labelDefinition.Height);
                 }
                 cell = row.Cells[colNumber];
                 colNumber++;
@@ -160,14 +162,14 @@ namespace SharpPDFLabel
                 if (colNumber == numOfCols && ((rowNumber) < _labelDefinition.LabelRowsPerPage && _labelDefinition.VerticalGapHeight > 0))
                 {
                     row = tbl.AddRow();
-                    row.Height = _labelDefinition.VerticalGapHeight;
+                    row.Height = Unit.FromMillimeter(_labelDefinition.VerticalGapHeight);
                 }
 
-                if(colNumber == numOfCols && (rowNumber < _labelDefinition.LabelRowsPerPage))
+                if(colNumber == numOfCols && (rowNumber < _labelDefinition.LabelRowsPerPage && _labelDefinition.VerticalGapHeight <= 0))
                 {
                     // add the row to the table and re-initialize
                     row = tbl.AddRow();
-                    row.Height = _labelDefinition.Height;
+                    row.Height = Unit.FromMillimeter(_labelDefinition.Height);
                 }
 
                 if (colNumber == numOfCols)
@@ -179,8 +181,7 @@ namespace SharpPDFLabel
                 
                 if (rowNumber > _labelDefinition.LabelRowsPerPage)
                 {
-                    
-                    rowNumber = -1;
+                    rowNumber = 0;
                     colNumber = 0;
                 }
                 
@@ -196,7 +197,7 @@ namespace SharpPDFLabel
             }
 
             // make sure the last table gets added to the document
-            if (rowNumber > -1)
+            if (rowNumber > 0)
             {
             }
 
@@ -219,8 +220,6 @@ namespace SharpPDFLabel
 
         private Cell FormatCell(Cell cell)
         {
-            //Ensure our label height is adhered to
-            cell.Row.Height = _labelDefinition.Height;
             cell.Row.Borders.Visible = IncludeLabelBorders;
             if(IncludeLabelBorders)
             { 

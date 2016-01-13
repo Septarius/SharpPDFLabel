@@ -15,72 +15,72 @@ namespace SharpPDFLabel
         /// The width of 1 label
         /// </summary>
         protected double _Width;
-        public float Width
+        public double Width
         {
-            get { return mmToPoint(_Width); }
+            get { return _Width; }
         }
 
         /// <summary>
         /// The height of 1 label
         /// </summary>
         protected double _Height;
-        public float Height
+        public double Height
         {
-            get { return mmToPoint(_Height); }
+            get { return _Height; }
         }
 
         /// <summary>
         /// The width of the horizontal gap between labels
         /// </summary>
         protected double _HorizontalGapWidth;
-        public float HorizontalGapWidth
+        public double HorizontalGapWidth
         {
-            get { return mmToPoint(_HorizontalGapWidth); }
+            get { return _HorizontalGapWidth; }
         }
 
         /// <summary>
         /// The height of the vertical gap between labels
         /// </summary>
         protected double _VerticalGapHeight;
-        public float VerticalGapHeight
+        public double VerticalGapHeight
         {
-            get { return mmToPoint(_VerticalGapHeight); }
+            get { return _VerticalGapHeight; }
         }
 
         /// <summary>
         /// The left page margin
         /// </summary>
         protected double _PageMarginLeft;
-        public float PageMarginLeft
+        public double PageMarginLeft
         {
-            get { return mmToPoint(_PageMarginLeft); }
+            get { return _PageMarginLeft; }
         }
 
         /// <summary>
         /// The right page margin
         /// </summary>
         protected double _PageMarginRight;
-        public float PageMarginRight
+        public double PageMarginRight
         {
-            get { return mmToPoint(_PageMarginRight); }
+            get { return _PageMarginRight; }
         }
 
         /// <summary>
         /// The top page margin
         /// </summary>
         protected double _PageMarginTop;
-        public float PageMarginTop
+        public double PageMarginTop
         {
-            get { return mmToPoint(_PageMarginTop); }
+            get { return _PageMarginTop; }
         }
 
         /// <summary>
         /// The bottom page margin
         /// </summary>
         protected double _PageMarginBottom;
-        public float PageMarginBottom
+        public double PageMarginBottom
         {
-            get { return mmToPoint(_PageMarginBottom); }
+            get { return _PageMarginBottom; }
         }
 
         /* page definitions */
@@ -101,17 +101,6 @@ namespace SharpPDFLabel
         /// The number of labels running down the page
         /// </summary>
         public int LabelRowsPerPage { get; set; }
-
-
-        /// <summary>
-        /// iTextSharp uses points as its units
-        /// </summary>
-        /// <param name="mm">Millimetres to convert</param>
-        /// <returns>millimetres converted to points represented by a float</returns>
-        private float mmToPoint(double mm)
-        {
-            return (float)((mm / 25.4) * 72);
-        }
 
     }
 }
