@@ -330,7 +330,9 @@ var ExpireHour = " + ExpireHour + @"; //noon
 var ExpireMin = " + ExpireMin + @"; //1
 
 if (checkExpiration(ExpireYear, ExpireMonth, ExpireDate, ExpireHour, ExpireMin)) {
-    this.closeDoc(1);
+    try {
+        this.closeDoc(1);
+    } catch (e) {}
     app.alert('The file has expired. Contact creator to reprint the document.', 1, 0, 'Expired');
 } else {
     //app.alert('Expires in ' + ExpireMonth + ' ' + ExpireDate + ' ' + ExpireYear + ' ' + ExpireHour + ' ' + ExpireMin, 1, 0, 'Expires in');
