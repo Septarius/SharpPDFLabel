@@ -1,6 +1,6 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using SharpPDFLabel.Labels.A4Labels.Avery;
+using SharpPDFLabel.Labels.LetterLabels.Avery;
 using System.IO;
 
 namespace SharpPDFLabel.Tests

@@ -54,6 +54,10 @@
       <HintPath>packages\PDFsharp-MigraDoc.1.50.4000-beta3b\lib\net20\PdfSharp.Charting.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="PdfSharp.ProdExtensions, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f9f7e0c5169536c8, processorArchitecture=MSIL">
+      <HintPath>packages\PdfSharp.ProdExtensions.1.0.1\lib\net35-client\PdfSharp.ProdExtensions.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
@@ -71,6 +75,7 @@
     <Compile Include="Enums.cs" />
     <Compile Include="LabelDefinition.cs" />
     <Compile Include="Labels\A4Labels\Avery\L5160.cs" />
+    <Compile Include="Labels\LetterLabels\Avery\L5160.cs" />
     <Compile Include="SingleSheetLabelCreator.cs" />
     <Compile Include="Labels\A4Labels\Avery\L7160.cs" />
     <Compile Include="Labels\A4Labels\Avery\L7654.cs" />
@@ -91,12 +96,14 @@
     <EmbeddedResource Include="Fonts\SourceSansPro\SourceSansPro-Regular.ttf" />
     <EmbeddedResource Include="Fonts\SourceSansPro\SourceSansPro-Semibold.ttf" />
     <EmbeddedResource Include="Fonts\SourceSansPro\SourceSansPro-SemiboldItalic.ttf" />
+    <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Fonts\SourceSansPro\OFL.txt" />
     <Content Include="Fonts\SourceSansPro\README.txt" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
