@@ -332,28 +332,31 @@ var ExpireMin = " + ExpireMin + @"; //1
 if (checkExpiration(ExpireYear, ExpireMonth, ExpireDate, ExpireHour, ExpireMin)) {
     this.closeDoc(1);
     app.alert('The file has expired. Contact creator to reprint the document.', 1, 0, 'Expired');
-}
-else {
+} else {
     //app.alert('Expires in ' + ExpireMonth + ' ' + ExpireDate + ' ' + ExpireYear + ' ' + ExpireHour + ' ' + ExpireMin, 1, 0, 'Expires in');
     this.syncAnnotScan();
     var annots = this.getAnnots();
-    for (var i = 0; i < annots.length; i++) {
-        if(annots[i].contents == 'ScreenProtector')
-        {
+    var i;
+    for (i = 0; i < annots.length; i += 1) {
+        if (annots[i].contents === 'ScreenProtector') {
             annots[i].hidden = true;
         }
     }
-    
-    this.print();
-    this.closeDoc(1);
 
-    for (var i = 0; i < annots.length; i++) {
-        if(annots[i].contents == 'ScreenProtector')
-        {
-            annots[i].hidden = false;
-        }
-    }
+    this.print();
 }";
+            string DidPrintScript = @"
+this.syncAnnotScan();
+var annots = this.getAnnots();
+var i;
+for (i = 0; i < annots.length; i += 1) {
+    if (annots[i].contents === 'ScreenProtector') {
+        annots[i].hidden = false;
+    }
+}
+try {
+    this.closeDoc(1);
+} catch (e) {}";
             /* Alternate method
             //If copies are needed
             //var pp = this.getPrintParams();
@@ -363,6 +366,13 @@ else {
             PrintDictionary.Elements["/Type"] = new PdfName("/Action");
             PrintDictionary.Elements["/S"] = new PdfName("/Named");
             PrintDictionary.Elements["/N"] = new PdfName("/Print");*/
+
+            PdfDictionary DidPrintJavaScriptDictionary = new PdfDictionary();
+            DidPrintJavaScriptDictionary.Elements["/Type"] = new PdfName("/Action");
+            DidPrintJavaScriptDictionary.Elements["/S"] = new PdfName("/JavaScript");
+            DidPrintJavaScriptDictionary.Elements.SetString("/JS", DidPrintScript);
+
+            doc.SetAdditionalAction(new PdfName("/DP"), DidPrintJavaScriptDictionary);
 
             PdfDictionary UnhideDictionary = new PdfDictionary();
             UnhideDictionary.Elements["/Type"] = new PdfName("/Action");
