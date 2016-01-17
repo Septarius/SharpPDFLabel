@@ -1,6 +1,6 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using SharpPDFLabel.Labels.A4Labels.Avery;
+using SharpPDFLabel.Labels.LetterLabels.Avery;
 using System.IO;
 
 namespace SharpPDFLabel.Tests
@@ -19,10 +19,10 @@ namespace SharpPDFLabel.Tests
             for (var i = 1; i <= 30; i++)
             {
                 var label = new Label(Enums.Alignment.LEFT);
-                label.AddText("Person Name " + i.ToString(), "Verdana", 12, embedFont: true);
-                label.AddText("Address one for " + i.ToString(), "Verdana", 12, embedFont: true);
-                label.AddText("Address two for " + i.ToString(), "Verdana", 12, embedFont: true);
-                label.AddText("City, State ZIPCODE " + i.ToString(), "Verdana", 12, embedFont: true);
+                label.AddText("Person Name " + i.ToString(), "Ssans Pro Regular", 12, embedFont: true);
+                label.AddText("Address one for " + i.ToString(), "Ssans Pro Regular", 12, embedFont: true);
+                label.AddText("Address two for " + i.ToString(), "Ssans Pro Regular", 12, embedFont: true);
+                label.AddText("City, State ZIPCODE " + i.ToString(), "Ssans Pro Regular", 12, embedFont: true);
                 labelCreator.AddLabel(label);
             }
 
