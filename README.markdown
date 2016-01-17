@@ -6,7 +6,7 @@ About
 There are two ways to use this library. The first is to create sheets of identical labels. The second
 lets you specify each individual label that will be injected into the sheet(s)
 
-The code uses PDFSharp-Core to create the PDFs. You can reference PDFSharp-Core using NuGet
+The fork uses MigraDoc-Core to create the PDFs. You can reference MigraDoc-Core using NuGet
 
 
 ### Table of Contents
